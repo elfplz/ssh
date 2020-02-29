@@ -69,7 +69,7 @@ type SessionRequestCallback func(sess Session, requestType string) bool
 // ConnCallback is a hook for new connections before handling.
 // It allows wrapping for timeouts and limiting by returning
 // the net.Conn that will be used as the underlying connection.
-type ConnCallback func(conn net.Conn) net.Conn
+type ConnCallback func(ctx Context, conn net.Conn) net.Conn
 
 // LocalPortForwardingCallback is a hook for allowing port forwarding
 type LocalPortForwardingCallback func(ctx Context, destinationHost string, destinationPort uint32) bool
@@ -77,8 +77,8 @@ type LocalPortForwardingCallback func(ctx Context, destinationHost string, desti
 // ReversePortForwardingCallback is a hook for allowing reverse port forwarding
 type ReversePortForwardingCallback func(ctx Context, bindHost string, bindPort uint32) bool
 
-// DefaultServerConfigCallback is a hook for creating custom default server configs
-type DefaultServerConfigCallback func(ctx Context) *gossh.ServerConfig
+// ServerConfigCallback is a hook for creating custom default server configs
+type ServerConfigCallback func(ctx Context) *gossh.ServerConfig
 
 // Window represents the size of a PTY window.
 type Window struct {
