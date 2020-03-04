@@ -60,6 +60,8 @@ type Server struct {
 
 	SubsystemHandlers map[string]SubsystemHandler
 
+	X11RequestHandler X11RequestHandler
+
 	listenerWg sync.WaitGroup
 	mu         sync.RWMutex
 	listeners  map[net.Listener]struct{}

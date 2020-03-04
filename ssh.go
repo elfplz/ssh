@@ -48,6 +48,9 @@ type Handler func(Session)
 // SubsystemHandler is a callback for handling session subsystem request
 type SubsystemHandler func(Session)
 
+// X11RequestHandler is a callback for handing session x11 request
+type X11RequestHandler func(Session, *gossh.Request)
+
 // PublicKeyHandler is a callback for performing public key authentication.
 type PublicKeyHandler func(ctx Context, key PublicKey) AuthResult
 

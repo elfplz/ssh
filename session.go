@@ -73,6 +73,9 @@ type Session interface {
 	// If there are buffered signals when a channel is registered, they will be
 	// sent in order on the channel immediately after registering.
 	Signals(c chan<- Signal)
+
+	// X11ReqPayload
+	X11ReqPayload() []byte
 }
 
 // maxSigBufSize is how many signals will be buffered
@@ -94,6 +97,7 @@ func DefaultSessionHandler(srv *Server, conn *gossh.ServerConn, newChan gossh.Ne
 		ctx:       ctx,
 
 		subsystemHandlers: srv.SubsystemHandlers,
+		x11RequestHandler: srv.X11RequestHandler,
 	}
 	sess.handleRequests(reqs)
 }
@@ -114,8 +118,10 @@ type session struct {
 	ctx       Context
 	sigCh     chan<- Signal
 	sigBuf    []Signal
+	x11ReqPayload []byte
 
 	subsystemHandlers map[string]SubsystemHandler
+	x11RequestHandler X11RequestHandler
 }
 
 func (sess *session) Write(p []byte) (n int, err error) {
@@ -213,6 +219,10 @@ func (sess *session) Signals(c chan<- Signal) {
 			}
 		}()
 	}
+}
+
+func (sess *session) X11ReqPayload() []byte {
+	return sess.x11ReqPayload;
 }
 
 func (sess *session) handleRequests(reqs <-chan *gossh.Request) {
@@ -319,6 +329,13 @@ func (sess *session) handleRequests(reqs <-chan *gossh.Request) {
 				sess.Exit(0)
 			}()
 
+		case "x11-req":
+			if sess.x11RequestHandler == nil {
+				req.Reply(false, nil)
+			} else {
+				sess.x11ReqPayload = req.Payload
+				sess.x11RequestHandler(sess, req)	
+			}
 		default:
 			// TODO: debug log
 			req.Reply(false, nil)
